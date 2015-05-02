@@ -1,6 +1,14 @@
 body {
     font-family: Helvetica, Arial, sans-serif;
 }
+.noselect {
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
 th, td {
     font-weight: normal;
     padding: 0.2em 0.8em;
