@@ -5,9 +5,13 @@
         <link rel="stylesheet" type="text/css" href="style.css" />
     </head>
     <body>
-        <table id="calendar" class="noselect"></table>
+        <div id="js-calendar" class="noselect"></div>
 
         <!-- include Calendar.js -->
         <script type="text/javascript" src="Calendar.js"></script>
+        <!-- intialize calendar -->
+        <script type="text/javascript">
+            var calendar = new Calendar("js-calendar");
+        </script>
     </body>
 </html>

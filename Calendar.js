@@ -39,97 +39,148 @@ HTMLElement.prototype.removeClass = function(className) {
 /**
  * Calendar Constructor
  */
-function Calendar() {
+function Calendar(id) {
 
     /**
      * init
      */
-    var today = new Date(),
-        year = today.getFullYear(),
-        month = today.getMonth(),
-        date = today.getDate(),
+    var that = this,
+        today = new Date(),
+        year = today.getFullYear(), selectedYear = year,
+        month = today.getMonth(), selectedMonth = month,
+        date = today.getDate(), selectedDate = date,
         day = today.getDay(),
-        lastDateOfMonth = new Date(year, month + 1, 0).getDate(),
-        firstDayOfMonth = new Date(year, month, 1).getDay(),
-        element = document.getElementById("calendar"),
+        lastDateOfMonth = getLastDateOfMonth(year, month),
+        firstDayOfMonth = getFirstDayOfMonth(year, month),
         dayNames = ["Sunday", "Monday", "Tuesday", "Wednesday",
-                    "Thursday", "Friday", "Saturday"];
-
-    /**
-     * create method
-     */
-    this.create = function() {
-        var table = createElem("table"),
-            thead = createElem("thead"),
-            tbody = createElem("tbody"),
-            tr, th, td,
-            dateNum,
-            months = ["January", "February", "March", "April", "May",
+                    "Thursday", "Friday", "Saturday"],
+        monthNames = ["January", "February", "March", "April", "May",
                       "June", "July", "August", "September",
                       "October", "November", "December"],
-            days = ["S", "M", "T", "W", "T", "F", "S"],
-            i, j, k,
-            dateElems, activeElem;
+        mainElement,
+        calendarTable = createElem("table"),
+        calendarTableBody = createElem("tbody");
 
-        // shorthand for document.createElement method
-        function createElem(element, text) {
-            var node,
-                args = arguments[0],
-                key;
-            // object argument
-            if (typeof args === "object") {
-                node = document.createElement(args.element);
-                if (args.text) {
-                    node.innerHTML = args.text;
-                }
-                if (typeof args.attributes === "object") {
-                    for (key in args.attributes) {
-                        node.setAttribute(key, args.attributes[key]);
-                    }
+    // select and confirm main element id
+    if (!(mainElement = document.getElementById(id))) {
+        console.assert(mainElement, "Missing or invalid argument 'selector' for Calendar constructor");
+        return false;
+    }
+
+    /**
+     * supplementary methods to retrieve date values
+     */
+    function getLastDateOfMonth(year, month) {
+        return new Date(year, month + 1, 0).getDate();
+    }
+    function getFirstDayOfMonth(year, month) {
+        return new Date(year, month, 1).getDay();
+    }
+
+    /**
+     * shorthand for document.createElement
+     */
+    function createElem(element, text) {
+        var node,
+            args = arguments[0],
+            key;
+        // object argument
+        if (typeof args === "object") {
+            node = document.createElement(args.element);
+            if (args.text) {
+                node.innerHTML = args.text;
+            }
+            if (typeof args.attributes === "object") {
+                for (key in args.attributes) {
+                    node.setAttribute(key, args.attributes[key]);
                 }
             }
-            // standard argument(s)
-            else {
-                node = document.createElement(element);
-                if (text) {
-                    node.innerHTML = text;
-                }
+        }
+        // standard argument(s)
+        else {
+            node = document.createElement(element);
+            if (text) {
+                node.innerHTML = text;
             }
-            return node;
+        }
+        return node;
+    }
+
+    /**
+     * create calendar head
+     */
+    this.createCalendarHead = function() {
+        var mainElem = mainElement,
+            table = calendarTable,
+            thead = createElem("thead"),
+            tr, headLeftArrow, headMain, headRightArrow,
+            days = ["S", "M", "T", "W", "T", "F", "S"],
+            i;
+        
+        // adds number to month and then updates calendar
+        function addMonthThenUpdate(n) {
+            var addYears, addMonths, m;
+            // add number to month
+            month += n;
+            // keep month in the range of 0 and 11
+            while (month > 11) {
+                month -= 12;
+                year++;
+            }
+            while (month < 0) {
+                month += 12;
+                year--;
+            }
+            // update calendar head
+            headMain.innerHTML = monthNames[month] + " " + year;
+            lastDateOfMonth = getLastDateOfMonth(year, month);
+            firstDayOfMonth = getFirstDayOfMonth(year, month);
+            // update calendar body
+            that.createCalendarBody();
         }
 
-        //--- create calendar header ---//
-        // left arrow
+        // table row
         tr = createElem({
             element: "tr",
             attributes: {
                 class: "calendar-header"
             }
         });
-        tr.appendChild(createElem({
+        // left arrow
+        headLeftArrow = createElem({
             element: "th",
             text: "&lt;",
             attributes: {
-                class: "js-calendar-left-arrow arrow"
+                class: "arrow"
             }
-        }));
+        });
+        // left arrow event handler to update calendar
+        headLeftArrow.onclick = function() {
+            addMonthThenUpdate(-1);
+        };
+        tr.appendChild(headLeftArrow);
         // month and year
-        tr.appendChild(createElem({
+        headMain = createElem({
             element: "th",
-            text: months[month] + " " + year,
+            text: monthNames[month] + " " + year,
             attributes: {
                 class: "js-calendar-month-year month-year",
                 colspan: 5
             }
-        }));
-        // right arrow
-        tr.appendChild(createElem({
+        });
+        tr.appendChild(headMain);
+        // right arrow event handler to update calendar
+        headRightArrow = createElem({
             element: "th",
             text: "&gt;",
             attributes: {
-                class: "js-calendar-right-arrow arrow"
+                class: "arrow"
             }
-        }));
+        });
+        headRightArrow.onclick = function() {
+            addMonthThenUpdate(1);
+        };
+        tr.appendChild(headRightArrow);
         thead.appendChild(tr);
         // days of the week
         tr = createElem("tr");
@@ -137,8 +188,26 @@ function Calendar() {
             tr.appendChild(createElem("th", days[i]));
         }
         thead.appendChild(tr);
-        tr = createElem("tr");
-        
+        table.appendChild(thead);
+    };
+
+    this.createCalendarHead();
+
+    /**
+     * create calendar body
+     */
+    this.createCalendarBody = function() {
+        var mainElem = mainElement,
+            table = calendarTable,
+            tbody = calendarTableBody,
+            tr = createElem("tr"), td,
+            dateNum, dateArr,
+            i, j,
+            dateElems, activeElem;
+
+        // clear table body content
+        tbody.innerHTML = "";
+
         // iterate through the days of the month
         for (dateNum = 0; dateNum < lastDateOfMonth; dateNum++) {
             // insert row at the end of the first week of the month
@@ -153,17 +222,16 @@ function Calendar() {
             }
             // insert blank days until first date is reached
             if (dateNum === 0) {
-                for (j = 0; j < firstDayOfMonth; j++) {
+                for (i = 0; i < firstDayOfMonth; i++) {
                     tr.appendChild(createElem("td"));
                 }
             }
             // insert date with dataset info
             td = createElem("td", dateNum + 1);
-            td.dataset.date = year + "-" + ((month < 10) ? "0" + month : month) + "-" + (dateNum + 1);
+            td.dataset["date"] = year + "-" + ((month < 10) ? "0" + month : month) + "-" + ((dateNum + 1 < 10) ? "0" + (dateNum + 1) : (dateNum + 1));
             // highlight current date
-            if (dateNum + 1 === date) {
-                activeElem = td;
-                activeElem.addClass("active");
+            if (dateNum + 1 === selectedDate && month === selectedMonth && year === selectedYear) {
+                td.addClass("active");
             }
             tr.appendChild(td);
             // insert final row for the last week of month
@@ -172,23 +240,30 @@ function Calendar() {
             }
         }
         // append to respective elements
-        table.appendChild(thead);
         table.appendChild(tbody);
-        element.appendChild(table);
-        
+        mainElem.appendChild(table);
+
+        // add event handlers to calendar dates
         dateElems = tbody.getElementsByTagName("td");
-        for (k = 0; k < dateElems.length; k++) {
-            dateElems[k].onclick = function() {
-                activeElem.removeClass("active");
-                activeElem = this;
-                activeElem.addClass("active");
-            };
+        for (j = 0; j < dateElems.length; j++) {
+            // add handler to non-empty elements
+            if (dateElems[j].innerHTML) {
+                dateElems[j].onclick = function() {
+                    // remove active class if applicable
+                    activeElem = tbody.getElementsByClassName("active");
+                    if (activeElem.length > 0) {
+                        activeElem[0].removeClass("active");
+                    }
+                    this.addClass("active");
+                    dateArr = this.dataset["date"].split("-");
+                    selectedYear = Number(dateArr[0]);
+                    selectedMonth = Number(dateArr[1]);
+                    selectedDate = Number(dateArr[2]);
+                };
+            }
         }
     };
 
+    this.createCalendarBody();
+
 }
-
-
-// call
-var calendar = new Calendar();
-calendar.create();
