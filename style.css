@@ -6,7 +6,7 @@ th, td {
     padding: 0.2em 0.8em;
     text-align: center;
 }
-thead th {
+thead .calendar-header th {
     padding: 0.5em 0;
 }
 thead .arrow {
