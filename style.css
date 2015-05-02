@@ -9,10 +9,25 @@ body {
     -ms-user-select: none;
     user-select: none;
 }
-th, td {
+table {
+    cursor: default;
+}
+.calendar-cell th,
+.calendar-cell td {
     font-weight: normal;
     padding: 0.2em 0.8em;
-    text-align: center;
+}
+.meta-cell {
+    vertical-align: top;
+}
+.meta-head {
+    padding-top: 0.55em;
+}
+.meta-body {
+    font-size: 8em;
+    letter-spacing: -2px;
+    padding: 0 16px;
+    width: 150px;
 }
 thead .calendar-header th {
     padding: 0.5em 0;
@@ -26,14 +41,18 @@ thead .arrow:hover {
     background: #eee;
     color: #111;
 }
-thead .month-year {
+thead .header-month-year {
     color: #111;
     font-family: "Helvetica Neue", HelveticaNeue;
     letter-spacing: 1.5px;
 }
+thead .header-day-names,
 tbody th,
 tbody td {
     font-size: 0.9em;
+}
+tbody tr {
+    height: 20px;
 }
 tbody td {
     color: #888;

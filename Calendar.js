@@ -57,15 +57,41 @@ function Calendar(id) {
         monthNames = ["January", "February", "March", "April", "May",
                       "June", "July", "August", "September",
                       "October", "November", "December"],
-        mainElement,
+        mainElement = document.getElementById(id),
+        metaTable = createElem("table"),
+        metaHeadElement, metaBodyElement,
         calendarTable = createElem("table"),
-        calendarTableBody = createElem("tbody");
+        calendarTableBody = createElem("tbody"),
+        createMetaDisplay, createCalendarHead, createCalendarBody;
 
-    // select and confirm main element id
-    if (!(mainElement = document.getElementById(id))) {
+    // confirm main element id
+    if (!mainElement) {
         console.assert(mainElement, "Missing or invalid argument 'selector' for Calendar constructor");
         return false;
     }
+
+    // lambda that creates the tables within a table
+    (function(){
+        var mainElem = mainElement,
+            metaElem = metaTable,
+            calendarElem = calendarTable,
+            table = createElem("table"),
+            tr = createElem("tr"),
+            td1 = createElem("td"),
+            td2 = createElem("td");
+        
+        td1.className = "meta-cell";
+        td2.className = "calendar-cell";
+        td1.appendChild(metaElem);
+        td2.appendChild(calendarElem);
+        tr.appendChild(td1);
+        tr.appendChild(td2);
+        table.appendChild(tr);
+        mainElem.appendChild(table);
+    })();
+
+    // basic inline-styling for calendar
+    mainElement.style.textAlign = "center";
 
     /**
      * supplementary methods to retrieve date values
@@ -107,16 +133,52 @@ function Calendar(id) {
     }
 
     /**
-     * create calendar head
+     * meta display creator
      */
-    this.createCalendarHead = function() {
-        var mainElem = mainElement,
-            table = calendarTable,
+    createMetaDisplay = function() {
+        var table = metaTable,
+            head, body,
+            tr;
+
+        // day of the week
+        tr = createElem("tr");
+        head = createElem({
+            element: "td",
+            text: dayNames[day],
+            attributes: {
+                class: "meta-head"
+            }
+        });
+        metaHeadElement = head;
+        tr.appendChild(head);
+        table.appendChild(tr);
+        
+        // date of the month
+        tr = createElem("tr");
+        body = createElem({
+            element: "td",
+            text: date,
+            attributes: {
+                class: "meta-body"
+            }
+        });
+        metaBodyElement = body;
+        tr.appendChild(body);
+        table.appendChild(tr);
+    };
+
+    createMetaDisplay();
+
+    /**
+     * calendar head creator
+     */
+    createCalendarHead = function() {
+        var table = calendarTable,
             thead = createElem("thead"),
             tr, headLeftArrow, headMain, headRightArrow,
             days = ["S", "M", "T", "W", "T", "F", "S"],
             i;
-        
+
         // adds number to month and then updates calendar
         function addMonthThenUpdate(n) {
             var addYears, addMonths, m;
@@ -136,7 +198,7 @@ function Calendar(id) {
             lastDateOfMonth = getLastDateOfMonth(year, month);
             firstDayOfMonth = getFirstDayOfMonth(year, month);
             // update calendar body
-            that.createCalendarBody();
+            createCalendarBody();
         }
 
         // table row
@@ -164,7 +226,7 @@ function Calendar(id) {
             element: "th",
             text: monthNames[month] + " " + year,
             attributes: {
-                class: "js-calendar-month-year month-year",
+                class: "header-month-year",
                 colspan: 5
             }
         });
@@ -183,7 +245,12 @@ function Calendar(id) {
         tr.appendChild(headRightArrow);
         thead.appendChild(tr);
         // days of the week
-        tr = createElem("tr");
+        tr = createElem({
+            element: "tr",
+            attributes: {
+                class: "header-day-names"
+            }
+        });
         for (i = 0; i < days.length; i++) {
             tr.appendChild(createElem("th", days[i]));
         }
@@ -191,19 +258,20 @@ function Calendar(id) {
         table.appendChild(thead);
     };
 
-    this.createCalendarHead();
+    createCalendarHead();
 
     /**
-     * create calendar body
+     * calendar body creator
      */
-    this.createCalendarBody = function() {
-        var mainElem = mainElement,
-            table = calendarTable,
+    createCalendarBody = function() {
+        var table = calendarTable,
             tbody = calendarTableBody,
             tr = createElem("tr"), td,
             dateNum, dateArr,
-            i, j,
-            dateElems, activeElem;
+            i, j, k, l,
+            dateElems, activeElem,
+            metaHead = metaHeadElement,
+            metaBody = metaBodyElement;
 
         // clear table body content
         tbody.innerHTML = "";
@@ -237,11 +305,15 @@ function Calendar(id) {
             // insert final row for the last week of month
             if (dateNum + 1 === lastDateOfMonth) {
                 tbody.appendChild(tr);
+
+                // add empty rows to keep calendar from constantly resizing
+                k = tbody.getElementsByTagName("tr").length - 4;
+                for (l = 0; l < k; l++) {
+                    tbody.appendChild(createElem("tr"));
+                }
             }
         }
-        // append to respective elements
         table.appendChild(tbody);
-        mainElem.appendChild(table);
 
         // add event handlers to calendar dates
         dateElems = tbody.getElementsByTagName("td");
@@ -259,11 +331,14 @@ function Calendar(id) {
                     selectedYear = Number(dateArr[0]);
                     selectedMonth = Number(dateArr[1]);
                     selectedDate = Number(dateArr[2]);
+                    // update meta cell with day and date
+                    metaHead.innerHTML = dayNames[new Date(selectedYear, selectedMonth, selectedDate).getDay()];
+                    metaBody.innerHTML = selectedDate;
                 };
             }
         }
     };
 
-    this.createCalendarBody();
+    createCalendarBody();
 
 }
