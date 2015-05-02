@@ -41,6 +41,7 @@ HTMLElement.prototype.removeClass = function(className) {
  */
 function Calendar(id) {
 
+
     /**
      * init
      */
@@ -63,6 +64,7 @@ function Calendar(id) {
         calendarTable = createElem("table"),
         calendarTableBody = createElem("tbody"),
         createMetaDisplay, createCalendarHead, createCalendarBody;
+
 
     // confirm main element id
     if (!mainElement) {
@@ -90,8 +92,11 @@ function Calendar(id) {
         mainElem.appendChild(table);
     })();
 
-    // basic inline-styling for calendar
+    // styling for main element
     mainElement.style.textAlign = "center";
+    mainElement.style.height = "220px";
+    mainElement.style.overflow = "hidden";
+
 
     /**
      * supplementary methods to retrieve date values
@@ -102,6 +107,7 @@ function Calendar(id) {
     function getFirstDayOfMonth(year, month) {
         return new Date(year, month, 1).getDay();
     }
+
 
     /**
      * shorthand for document.createElement
@@ -131,6 +137,7 @@ function Calendar(id) {
         }
         return node;
     }
+
 
     /**
      * meta display creator
@@ -166,8 +173,8 @@ function Calendar(id) {
         tr.appendChild(body);
         table.appendChild(tr);
     };
-
     createMetaDisplay();
+
 
     /**
      * calendar head creator
@@ -349,8 +356,8 @@ function Calendar(id) {
         thead.appendChild(tr);
         table.appendChild(thead);
     };
-
     createCalendarHead();
+
 
     /**
      * calendar body creator
@@ -360,7 +367,7 @@ function Calendar(id) {
             tbody = calendarTableBody,
             tr = createElem("tr"), td,
             dateNum, dateArr,
-            i, j, k, l,
+            i, j, k,
             dateElems, activeElem,
             metaHead = metaHeadElement,
             metaBody = metaBodyElement;
@@ -375,8 +382,9 @@ function Calendar(id) {
                 tbody.appendChild(tr);
                 tr = createElem("tr");
             }
-            // insert row at the end of every other week of the month
-            else if ((dateNum + firstDayOfMonth) % 7 === 0) {
+            // insert row at the end of every week of the month except for the first
+            else if ((dateNum + firstDayOfMonth) % 7 === 0 &&
+                     dateNum !== firstDayOfMonth) {
                 tbody.appendChild(tr);
                 tr = createElem("tr");
             }
@@ -388,19 +396,22 @@ function Calendar(id) {
             }
             // insert date with dataset info
             td = createElem("td", dateNum + 1);
-            td.dataset["date"] = year + "-" + ((month < 10) ? "0" + month : month) + "-" + ((dateNum + 1 < 10) ? "0" + (dateNum + 1) : (dateNum + 1));
+            td.dataset["date"] = year + "-" +
+                                 ((month < 10) ? "0" + month : month) + "-" +
+                                 ((dateNum + 1 < 10) ? "0" + (dateNum + 1) : (dateNum + 1));
             // highlight current date
-            if (dateNum + 1 === selectedDate && month === selectedMonth && year === selectedYear) {
+            if (dateNum + 1 === selectedDate &&
+                month === selectedMonth &&
+                year === selectedYear) {
                 td.addClass("active");
             }
             tr.appendChild(td);
             // insert final row for the last week of month
             if (dateNum + 1 === lastDateOfMonth) {
                 tbody.appendChild(tr);
-                
                 // add empty rows to keep calendar from constantly resizing
                 k = tbody.getElementsByTagName("tr").length - 4;
-                for (l = 0; l < k; l++) {
+                for (k; k < 6; k++) {
                     tbody.appendChild(createElem("tr"));
                 }
             }
@@ -424,13 +435,42 @@ function Calendar(id) {
                     selectedMonth = Number(dateArr[1]);
                     selectedDate = Number(dateArr[2]);
                     // update meta cell with day and date
-                    metaHead.innerHTML = dayNames[new Date(selectedYear, selectedMonth, selectedDate).getDay()];
+                    metaHead.innerHTML = dayNames[new Date(selectedYear,
+                                                           selectedMonth,
+                                                           selectedDate).getDay()];
                     metaBody.innerHTML = selectedDate;
                 };
             }
         }
     };
-
     createCalendarBody();
+
+
+    /**
+     * get selected year
+     */
+    this.getSelectedYear = function() {
+        // return 4 digit year
+        return selectedYear;
+    };
+
+
+    /**
+     * get selected month
+     */
+    this.getSelectedMonth = function() {
+        // return month integer from 1 - 12
+        return selectedMonth + 1;
+    };
+
+
+    /**
+     * get selected date
+     */
+    this.getSelectedDate = function() {
+        // return date integer from 1 - 31
+        return selectedDate;
+    };
+
 
 }
