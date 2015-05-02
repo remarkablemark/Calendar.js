@@ -3,6 +3,44 @@ body {
 }
 th, td {
     font-weight: normal;
-    padding: 0.25em 0.75em;
+    padding: 0.2em 0.8em;
     text-align: center;
+}
+thead th {
+    padding: 0.5em 0;
+}
+thead .arrow {
+    color: #777;
+    cursor: pointer;
+    font-weight: lighter;
+}
+thead .arrow:hover {
+    background: #eee;
+    color: #111;
+}
+thead .month-year {
+    color: #111;
+    font-family: "Helvetica Neue", HelveticaNeue;
+    letter-spacing: 1.5px;
+}
+tbody th,
+tbody td {
+    font-size: 0.9em;
+}
+tbody td {
+    color: #888;
+}
+tbody td:not(:empty):hover {
+    background: #eee;
+    color: #000;
+    cursor: pointer;
+}
+tbody .active {
+    background: #f55;
+    color: #fff;
+}
+tbody .active:hover,
+tbody .active[data-date]:hover {
+    background: #f33;
+    color: #fff;
 }
