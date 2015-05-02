@@ -1,3 +1,18 @@
+/**
+ * Table of Contents
+ * -----------------
+ * 1. General
+ * 2. Main
+ * 3. Meta
+ * 4. Calendar
+ * 5. Calendar: Head
+ * 6. Calendar: Body
+ */
+
+
+/**
+ * 1. General
+ */
 body {
     font-family: Helvetica, Arial, sans-serif;
 }
@@ -9,14 +24,19 @@ body {
     -ms-user-select: none;
     user-select: none;
 }
+
+
+/**
+ * 2. Main
+ */
 table {
     cursor: default;
 }
-.calendar-cell th,
-.calendar-cell td {
-    font-weight: normal;
-    padding: 0.2em 0.8em;
-}
+
+
+/**
+ * 3. Meta
+ */
 .meta-cell {
     vertical-align: top;
 }
@@ -29,25 +49,40 @@ table {
     padding: 0 16px;
     width: 150px;
 }
-thead .calendar-header th {
+
+
+/**
+ * 4. Calendar
+ */
+.calendar-cell th,
+.calendar-cell td {
+    font-weight: normal;
+    padding: 0.2em 0.8em;
+}
+
+
+/**
+ * 5. Calendar: Head
+ */
+.calendar-header th {
     padding: 0.5em 0;
 }
-thead .arrow {
+.calendar-header .arrow {
     color: #777;
     cursor: pointer;
     font-weight: lighter;
 }
-thead .arrow:hover {
+.calendar-header .arrow:hover {
     background: #eee;
     color: #111;
 }
-thead .header-month-year {
+.calendar-header .header-month-year {
     color: #111;
     font-family: "Helvetica Neue", HelveticaNeue;
     letter-spacing: 1.5px;
 }
-thead .header-month,
-thead .header-year {
+.calendar-header .header-month,
+.calendar-header .header-year {
     background: none;
     border: 1px solid transparent;
     font-size: 1em;
@@ -55,42 +90,47 @@ thead .header-year {
     outline: none;
     padding: 4px;
 }
-thead .header-month:hover,
-thead .header-year:hover {
+.calendar-header .header-month:hover,
+.calendar-header .header-year:hover {
     border: 1px solid #ccc;
 }
-thead .header-year:hover {
+.calendar-header .header-year:hover {
     border-radius: 5px;
 }
-thead .header-month {
+.calendar-header .header-month {
     -webkit-appearance: none;
 }
-thead .header-year {
+.calendar-header .header-year {
     text-align: right;
     width: 45px;
 }
-thead .header-day-names,
-tbody th,
-tbody td {
+.calendar-cell .header-day-names {
+    color: #d75d5d;
     font-size: 0.9em;
 }
-tbody tr {
+
+
+/**
+ * 6. Calendar: Body
+ */
+.calendar-cell tbody tr {
     height: 20px;
 }
-tbody td {
+.calendar-cell tbody td {
     color: #888;
+    font-size: 0.9em;
 }
-tbody td:not(:empty):hover {
+.calendar-cell  tbody td:not(:empty):hover {
     background: #eee;
     color: #000;
     cursor: pointer;
 }
-tbody .active {
+.calendar-cell tbody .active {
     background: #f55;
     color: #fff;
 }
-tbody .active:hover,
-tbody .active[data-date]:hover {
+.calendar-cell tbody .active:hover,
+.calendar-cell tbody .active[data-date]:hover {
     background: #f33;
     color: #fff;
 }
