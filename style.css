@@ -21,7 +21,7 @@ table {
     vertical-align: top;
 }
 .meta-head {
-    padding-top: 0.55em;
+    padding-top: 15px;
 }
 .meta-body {
     font-size: 8em;
@@ -45,6 +45,29 @@ thead .header-month-year {
     color: #111;
     font-family: "Helvetica Neue", HelveticaNeue;
     letter-spacing: 1.5px;
+}
+thead .header-month,
+thead .header-year {
+    background: none;
+    border: 1px solid transparent;
+    font-size: 1em;
+    margin: 0 1px;
+    outline: none;
+    padding: 4px;
+}
+thead .header-month:hover,
+thead .header-year:hover {
+    border: 1px solid #ccc;
+}
+thead .header-year:hover {
+    border-radius: 5px;
+}
+thead .header-month {
+    -webkit-appearance: none;
+}
+thead .header-year {
+    text-align: right;
+    width: 45px;
 }
 thead .header-day-names,
 tbody th,

@@ -79,7 +79,7 @@ function Calendar(id) {
             tr = createElem("tr"),
             td1 = createElem("td"),
             td2 = createElem("td");
-        
+
         td1.className = "meta-cell";
         td2.className = "calendar-cell";
         td1.appendChild(metaElem);
@@ -144,7 +144,7 @@ function Calendar(id) {
         tr = createElem("tr");
         head = createElem({
             element: "td",
-            text: dayNames[day],
+            text: dayNames[selectedDate],
             attributes: {
                 class: "meta-head"
             }
@@ -152,7 +152,7 @@ function Calendar(id) {
         metaHeadElement = head;
         tr.appendChild(head);
         table.appendChild(tr);
-        
+
         // date of the month
         tr = createElem("tr");
         body = createElem({
@@ -177,7 +177,15 @@ function Calendar(id) {
             thead = createElem("thead"),
             tr, headLeftArrow, headMain, headRightArrow,
             days = ["S", "M", "T", "W", "T", "F", "S"],
-            i;
+            select, option, input, editingInput,
+            i, j;
+
+        // updates calendar body given month and year
+        function updateCalendarBody(year, month) {
+            lastDateOfMonth = getLastDateOfMonth(year, month);
+            firstDayOfMonth = getFirstDayOfMonth(year, month);
+            createCalendarBody();
+        }
 
         // adds number to month and then updates calendar
         function addMonthThenUpdate(n) {
@@ -193,12 +201,27 @@ function Calendar(id) {
                 month += 12;
                 year--;
             }
-            // update calendar head
-            headMain.innerHTML = monthNames[month] + " " + year;
-            lastDateOfMonth = getLastDateOfMonth(year, month);
-            firstDayOfMonth = getFirstDayOfMonth(year, month);
-            // update calendar body
-            createCalendarBody();
+            // update calendar head and body
+            select.getElementsByTagName("option")[month].selected = true;
+            input.value = year;
+            updateCalendarBody(year, month);
+        }
+
+        // changes month or year value and then updates calendar
+        function changeValueThenUpdate(param) {
+            var arg = param;
+            if (typeof arg === "object") {
+                if (arg.hasOwnProperty("month")) {
+                    month = Number(arg.month);
+                }
+                else if (arg.hasOwnProperty("year")) {
+                    year = Number(arg.year);
+                }
+                else {
+                    return;
+                }
+            }
+            updateCalendarBody(year, month);
         }
 
         // table row
@@ -224,12 +247,67 @@ function Calendar(id) {
         // month and year
         headMain = createElem({
             element: "th",
-            text: monthNames[month] + " " + year,
             attributes: {
                 class: "header-month-year",
                 colspan: 5
             }
         });
+        // allow month to be selectable
+        select = createElem({
+            element: "select",
+            attributes: {
+                class: "header-month"
+            }
+        });
+        // insert all the select options with the month names and values
+        for (j = 0; j < 12; j++) {
+            option = createElem({
+                element: "option",
+                text: monthNames[j],
+                attributes: {
+                    value: j
+                }
+            });
+            // select the month
+            if (j === month) {
+                option.selected = true;
+            }
+            select.appendChild(option);
+        }
+        // update calendar when new option is selected
+        select.onchange = function() {
+            month = this.value;
+            changeValueThenUpdate({ month: month });
+        };
+        headMain.appendChild(select);
+
+        // allow year to be editable
+        input = createElem({
+            element: "input",
+            attributes: {
+                class: "header-year",
+                type: "text",
+                maxlength: "4"
+            }
+        });
+        input.value = year;
+        // prevent arrow keys from conflicting with input editing
+        input.onkeydown = function() { editingInput = true; };
+        // update calendar when valid year is inputted
+        input.onkeyup = function() {
+            var inputYear = Number(this.value) || year;
+            // break if the year has not changed
+            if (inputYear === year) { return; }
+            // otherwise update year and calendar
+            else if (String(inputYear).length === 4) {
+                year = inputYear;
+                changeValueThenUpdate({ year: year });
+            }
+            // give control back to arrow keys in changing months after a delay
+            setTimeout(function() { editingInput = false; }, 500);
+        };
+        headMain.appendChild(input);
+
         tr.appendChild(headMain);
         // right arrow event handler to update calendar
         headRightArrow = createElem({
@@ -244,6 +322,20 @@ function Calendar(id) {
         };
         tr.appendChild(headRightArrow);
         thead.appendChild(tr);
+        // key press event handler
+        document.onkeyup = function(event) {
+            event = event || window.event;
+            // break operation if currently editing input
+            if (editingInput) { return; }
+            // left arrow
+            if (event.keyCode === 37 || event.keyCode === 40) {
+                addMonthThenUpdate(-1);
+            }
+            // right arrow
+            else if (event.keyCode === 39 || event.keyCode === 38) {
+                addMonthThenUpdate(1);
+            }
+        };
         // days of the week
         tr = createElem({
             element: "tr",
@@ -305,7 +397,7 @@ function Calendar(id) {
             // insert final row for the last week of month
             if (dateNum + 1 === lastDateOfMonth) {
                 tbody.appendChild(tr);
-
+                
                 // add empty rows to keep calendar from constantly resizing
                 k = tbody.getElementsByTagName("tr").length - 4;
                 for (l = 0; l < k; l++) {
