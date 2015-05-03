@@ -99,6 +99,9 @@ table {
 }
 .calendar-header .header-month {
     -webkit-appearance: none;
+    -khtml-appearance: none;
+    -moz-appearance: none;
+    -ms-appearance: none;
 }
 .calendar-header .header-year {
     text-align: right;
